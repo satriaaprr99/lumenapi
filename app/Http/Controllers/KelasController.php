@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Kelas;
+use App\Siswa;
 
 class KelasController extends Controller
 {
@@ -36,7 +37,11 @@ class KelasController extends Controller
         $check_data = Kelas::firstWhere('id', $id);
 
         if($check_data){
-            return response()->json(Kelas::find($id), 200);
+            $jml = Siswa::where('id_kelas', $id)->count();
+            return response()->json([
+                'data' => Kelas::find($id),
+                'jml' => $jml
+            ], 200);
         } else {
             return response([
                 'status' => 'ERROR',

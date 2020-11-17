@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Angkatan;
+use App\Siswa;
 
 class AngkatanController extends Controller
 {
@@ -16,6 +17,7 @@ class AngkatanController extends Controller
     public function index(){
 
         $data = Angkatan::all();
+
 
         return response()->json($data, 200);
     }
@@ -36,7 +38,11 @@ class AngkatanController extends Controller
         $check_data = Angkatan::firstWhere('id', $id);
 
         if($check_data){
-            return response()->json(Angkatan::find($id), 200);
+            $jml = Siswa::where('id_angkatan', $id)->count();
+            return response()->json([
+                'data' => Angkatan::find($id),
+                'jml' => $jml
+            ], 200);
         } else {
             return response([
                 'status' => 'ERROR',

@@ -22,6 +22,7 @@ class TransaksiController extends Controller
             ->select('*',DB::RAW('siswa_tagihan.id as id'))
             ->join('siswa', 'siswa.nis', '=', 'siswa_tagihan.siswa_id')
             ->join('tagihan', 'tagihan.id', '=', 'siswa_tagihan.tagihan_id')
+            ->join('kelas', 'kelas.id', '=', 'siswa.id_kelas')
             ->get();
 
         return response()->json($data, 200);
@@ -44,7 +45,7 @@ class TransaksiController extends Controller
 
         // $data = Pembayaran::all();
         $data = DB::table('siswa_tagihan')
-            ->select('*',DB::RAW('siswa_tagihan.id as id'))
+            ->select('*',DB::RAW('siswa_tagihan.id as id'), 'siswa_tagihan.updated_at as updated_at')
             ->join('siswa', 'siswa.nis', '=', 'siswa_tagihan.siswa_id')
             ->join('tagihan', 'tagihan.id', '=', 'siswa_tagihan.tagihan_id')
             ->join('kelas', 'kelas.id', '=', 'siswa.id_kelas')
@@ -78,13 +79,20 @@ class TransaksiController extends Controller
 
     public function create(Request $request){
 
-        if(Siswa::where('nis',$request->siswa_id)->first() == false):
+        if(Siswa::where('nis',$request->siswa_id)->first() == false){
             return response([
                 'status' => 'ERROR',
                 'message'=> 'NIS tidak Ada di Data!',
-            ], 404);
-        exit;
-        endif;
+            ], 404);   
+        };
+
+        // $data2 = Siswa::find($id);
+        // if($data2->tagihan()->where('tagihan_id', $request->tagihan_id)->first() == true){
+        //     return response()->json([
+        //         'status' => 'ERROR',
+        //         'message' => 'Data Tagihan sudah ada di tabel siswa'
+        //     ], 404);
+        // }
 
         // $siswa = Siswa::where('nis',$request->nis)->get();
 

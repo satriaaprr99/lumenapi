@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Siswa;
 use App\Kelas;
 use App\Angkatan;
+use App\Tagihan;
+use App\Pembayaran;
 
 class SiswaController extends Controller
 {
@@ -17,18 +19,26 @@ class SiswaController extends Controller
     }
 
     public function index(){
-        
-        // $data = Siswa::orderBy('created_at', 'DESC')->with(['kelas'])->get();
+                
         $data = DB::table('siswa')
                 ->select('*',DB::RAW('siswa.id as id'))
-                ->leftJoin('kelas', 'kelas.id', '=', 'siswa.id_kelas')
-                ->leftJoin('angkatan', 'angkatan.id', '=', 'siswa.id_angkatan')
+                ->join('kelas', 'kelas.id', '=', 'siswa.id_kelas')
+                ->join('angkatan', 'angkatan.id', '=', 'siswa.id_angkatan')
                 ->get();
             
         return response()->json($data, 200);
     }
 
     public function create(Request $request){
+
+        $this->validate($request, [
+                'nis' => 'required|min:10|max:11|unique:siswa',
+                'nama' => 'required|string|max:255',
+                'id_kelas' => 'required',
+                'id_angkatan' => 'required',
+                'nohp' => 'required|max:15',
+                'alamat' => 'required'
+            ]);
 
         $data = Siswa::create([
                    'avatar' => $request->file('avatar'),
@@ -51,6 +61,29 @@ class SiswaController extends Controller
             "message" => "success",
             "data" => $data
         ], 201);
+    }
+
+    public function createTransaksi(Request $request, $id){
+
+        $data = Siswa::find($id);
+
+        if($data->tagihan()->where('tagihan_id', $request->tagihan_id)->first() == true){
+            return response()->json([
+                'status' => 'ERROR',
+                'message' => 'Data Tagihan sudah ada di tabel siswa'
+            ], 404);
+        }else{
+            $create = Pembayaran::create([
+                'kd_bayar' => mt_rand(00000000, 99999999),
+                'siswa_id' => $data->nis,
+                'tagihan_id' => $request->tagihan_id,
+                'tgl_bayar' => $request->tgl_bayar,
+                'bayar' => $request->bayar,
+            ]);
+
+        return response()->json($create, 201);
+        }
+
     }
 
     public function show($id){
@@ -79,6 +112,16 @@ class SiswaController extends Controller
 
          $check_data = Siswa::firstWhere('id', $id);
 
+         $this->validate($request, [
+                'nis' => 'required|min:10|max:11',
+                'nama' => 'required|string|max:255',
+                'id_kelas' => 'required',
+                'id_angkatan' => 'required',
+                'nohp' => 'required|max:15',
+                'alamat' => 'required'
+            ]);
+
+
         if($check_data){
             $data = Siswa::find($id);
             $data->update([
@@ -90,6 +133,11 @@ class SiswaController extends Controller
                    'nohp' => $request->nohp,
                    'alamat' => $request->alamat,
                 ]);
+            if ($request->hasFile('avatar')) {
+                $request->file('avatar')->move('uploads/', $request->file('avatar')->getClientOriginalName());
+                $data->avatar = $request->file('avatar')->getClientOriginalName();
+                $data->update();
+            };
             return response([
                 'status' => 'OK',
                 'message'=> 'Data Telah Diupdate',
@@ -109,7 +157,9 @@ class SiswaController extends Controller
         $check_data = Siswa::firstWhere('id', $id);
 
         if($check_data){
+            $data = Siswa::find($id);
             $delete = Siswa::destroy($id);
+            $delete = Pembayaran::where('siswa_id', $data->nis)->delete();
             return response([
                 'status' => 'OK',
                 'message'=> 'Data Telah Dihapus',

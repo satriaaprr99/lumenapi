@@ -12,7 +12,8 @@ class Siswa extends Model
   ];
    
    public function tagihan(){
-    return  $this->belongsToMany(Tagihan::class)->withPivot(['id', 'kd_bayar', 'bayar', 'created_at'])->withTimeStamps();
+    return  $this->belongsToMany(Tagihan::class)->withPivot(['id', 'tagihan_id', 'kd_bayar', 'bayar', 'created_at'])
+            ->withTimeStamps();
   }
 
   
@@ -33,13 +34,4 @@ class Siswa extends Model
     return asset('uploads/'.$this->avatar);
 
   }
-
-  public function nama_kelas(){
-    return $this->kelas->nama_kelas;
-  }
-
-  public function tahun_angkatan(){
-    return $this->angkatan->tahun;
-  }
-
 }

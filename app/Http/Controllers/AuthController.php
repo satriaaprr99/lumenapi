@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use \App\User;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -24,7 +24,7 @@ class AuthController extends Controller
 
         $this->validate($request, [
             'username' => 'required|exists:users,username',
-            'password' => 'required|string|min:6'
+            'password' => 'required|string'
         ]);
 
         $user = User::where('username', $request->username)->first();
@@ -32,9 +32,14 @@ class AuthController extends Controller
         if ($user && Hash::check($request->password, $user->password)) {
             $token = Str::random(40);
             $user->update(['remember_token' => $token]);
-            return response()->json(['status' => 'success', 'data' => $token]);
+            return response()->json([
+                'status' => 'success',
+                'data' => $user, 
+                '_token' => $token
+            ]);
         }
         return response()->json(['status' => 'error']);
+
 
     }
 
@@ -53,5 +58,6 @@ class AuthController extends Controller
         ]);
  
         return response()->json($data, 200);
+       
     }
 }

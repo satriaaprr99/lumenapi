@@ -15,13 +15,16 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('dashboard', 'DashboardController@dashboard');
+$router->get('dashboardhistori', 'DashboardController@histori');
+
 $router->get('siswa', 'SiswaController@index');
 $router->post('siswa', 'SiswaController@create');
 $router->get('siswa/{id}', 'SiswaController@show');
 $router->put('siswa/{id}', 'SiswaController@update');
 $router->delete('siswa/{id}', 'SiswaController@destroy');
-$router->get('siswa/avatar/{name}', 'SiswaController@get_avatar');
 $router->get('siswabayar/{id}', 'TransaksiController@SiswaBayar');
+$router->post('siswabayar/{id}', 'SiswaController@createTransaksi');
 
 $router->get('kelas', 'KelasController@index');
 $router->post('kelas', 'KelasController@create');
