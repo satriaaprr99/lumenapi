@@ -86,19 +86,6 @@ class TransaksiController extends Controller
             ], 404);   
         };
 
-        // $data2 = Siswa::find($id);
-        // if($data2->tagihan()->where('tagihan_id', $request->tagihan_id)->first() == true){
-        //     return response()->json([
-        //         'status' => 'ERROR',
-        //         'message' => 'Data Tagihan sudah ada di tabel siswa'
-        //     ], 404);
-        // }
-
-        // $siswa = Siswa::where('nis',$request->nis)->get();
-
-        // foreach($siswa as $val){
-        //     $id_siswa = $val->id;
-        // }
         $data = Pembayaran::create([
             'kd_bayar' => mt_rand(00000000, 99999999),
             'siswa_id' => $request->siswa_id,
@@ -132,18 +119,6 @@ class TransaksiController extends Controller
                 'tagihan_id' => $request->tagihan_id,
                 'bayar' => $request->bayar,
             ]);
-
-            // if($request->nis != $pembayaran->siswa->nis) :
-            //     $siswa = Siswa::where('nis',$request->nis)->get();
-
-            //     foreach($siswa as $val){
-            //         $id_siswa = $val->id;
-            //     }
-
-            //     $pembayaran->update([
-            //         'siswa_id' => $id_siswa,
-            //     ]);
-            // endif;
 
             return response()->json($data, 200);
 
